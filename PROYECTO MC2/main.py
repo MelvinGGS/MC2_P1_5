@@ -5,132 +5,150 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-class GraphVisualization(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.master.title("Búsqueda en Anchura y Profundidad")
-        self.master.configure(bg="#FFEEEE")  # Cambiar el color de fondo de la ventana
+class GrafoVisualizador(tk.Frame):
+    def __init__(self, ventana=None):
+        super().__init__(ventana)
+        self.ventana = ventana
+        self.ventana.title("GRAFO - LARGO Y ANCHO")
+        self.ventana.configure(bg="#F5F5DC")  # Cambiar el color de fondo a beige
+        self.grid(sticky="nsew")
 
-        self.original_graph = nx.Graph()
-        self.graph = nx.Graph()
-        self.vertices = []
-        self.edges = []
-        self.canvas = None
-        self.bfs_canvas = None
-        self.dfs_canvas = None
-        self.pos = None
-        self.create_widgets()
+        self.grafo_base = nx.Graph()
+        self.grafo_copia = nx.Graph()
+        self.vertices_lista = []
+        self.aristas_lista = []
+        self.canvas_base = None
+        self.canvas_bfs = None
+        self.canvas_dfs = None
+        self.posicion_nodos = None
+        self.crear_componentes()
 
-    def create_widgets(self):
+        # Centrar la ventana en la pantalla
+        self.ventana.update_idletasks()  # Asegurarse de que la ventana esté completamente inicializada
+        self.centrar_ventana()
+
+    def centrar_ventana(self):
+        # Obtener el tamaño de la ventana
+        ancho_ventana = self.ventana.winfo_width()
+        alto_ventana = self.ventana.winfo_height()
+
+        # Obtener el tamaño de la pantalla
+        ancho_pantalla = self.ventana.winfo_screenwidth()
+        alto_pantalla = self.ventana.winfo_screenheight()
+
+        # Calcular la posición x e y para centrar la ventana
+        x = (ancho_pantalla // 2) - (ancho_ventana // 2)
+        y = (alto_pantalla // 2) - (alto_ventana // 2)
+
+        # Establecer la geometría de la ventana
+        self.ventana.geometry(f'{ancho_ventana}x{alto_ventana}+{x}+{y}')
+
+    def crear_componentes(self):
         # Etiqueta para entrada de vértices
-        self.vertex_label = tk.Label(self.master, text="Entrada de Vértices:")
-        self.vertex_label.grid(row=0, column=0, padx=5, pady=5)
+        self.etiqueta_vertices = tk.Label(self.ventana, text="Vértices:", bg="#F5F5DC")
+        self.etiqueta_vertices.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
         # Entrada de vértices
-        self.vertex_entry = tk.Entry(self.master)
-        self.vertex_entry.grid(row=1, column=0, padx=5, pady=5)
+        self.entrada_vertices = tk.Entry(self.ventana)
+        self.entrada_vertices.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
+        
         # Etiqueta para entrada de aristas
-        self.edge_label = tk.Label(self.master, text="Entrada de Aristas:")
-        self.edge_label.grid(row=0, column=1, padx=5, pady=5)
+        self.etiqueta_aristas = tk.Label(self.ventana, text="Aristas:", bg="#F5F5DC")
+        self.etiqueta_aristas.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
         # Entrada de aristas
-        self.edge_entry = tk.Entry(self.master)
-        self.edge_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.entrada_aristas = tk.Entry(self.ventana)
+        self.entrada_aristas.grid(row=1, column=1, padx=10, pady=5, sticky="nsew")
+        
         # Botón para agregar aristas
-        self.add_button = tk.Button(self.master, text="Agregar", command=self.add_graph)
-        self.add_button.grid(row=1, column=2, padx=5, pady=5)
+        self.boton_agregar = tk.Button(self.ventana, text="Agregar Grafo", command=self.agregar_grafo)
+        self.boton_agregar.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        
         # Tabla para mostrar vértices y aristas
-        self.table_label = tk.Label(self.master, text="Vértices y Aristas:")
-        self.table_label.grid(row=2, column=0, columnspan=3, padx=5, pady=5)
-        self.treeview = ttk.Treeview(self.master, columns=("Vértices", "Aristas"), show="headings")
-        self.treeview.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
-        self.treeview.heading("Vértices", text="Vértices")
-        self.treeview.heading("Aristas", text="Aristas")
-        # Centrar la tabla en el eje x
-        self.master.grid_columnconfigure(0, weight=1)
-        self.master.grid_columnconfigure(1, weight=1)
-        self.master.grid_columnconfigure(2, weight=1)
+        self.etiqueta_tabla = tk.Label(self.ventana, text="Vértices y Aristas:", bg="#F5F5DC")
+        self.etiqueta_tabla.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        self.tabla = ttk.Treeview(self.ventana, columns=("Vértices", "Aristas"), show="headings")
+        self.tabla.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        self.tabla.heading("Vértices", text="Vértices")
+        self.tabla.heading("Aristas", text="Aristas")
         
-        # Título para el grafo original
-        self.graph_label = tk.Label(self.master, text="Grafo Original")
-        self.graph_label.grid(row=4, column=0, padx=5, pady=5)
         # Área para mostrar el grafo original
-        self.figure = plt.Figure(figsize=(5, 4), dpi=100)
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self.master)
-        self.canvas.get_tk_widget().grid(row=5, column=0, padx=5, pady=5)
-
-        # Título para el grafo de búsqueda en anchura
-        self.bfs_label = tk.Label(self.master, text="Búsqueda en Anchura")
-        self.bfs_label.grid(row=4, column=1, padx=5, pady=5)
-        # Área para mostrar el grafo de búsqueda en anchura
-        self.bfs_figure = plt.Figure(figsize=(5, 4), dpi=100)
-        self.bfs_canvas = FigureCanvasTkAgg(self.bfs_figure, master=self.master)
-        self.bfs_canvas.get_tk_widget().grid(row=5, column=1, padx=5, pady=5)
-
-        # Título para el grafo de búsqueda en profundidad
-        self.dfs_label = tk.Label(self.master, text="Búsqueda en Profundidad")
-        self.dfs_label.grid(row=4, column=2, padx=5, pady=5)
-        # Área para mostrar el grafo de búsqueda en profundidad
-        self.dfs_figure = plt.Figure(figsize=(5, 4), dpi=100)
-        self.dfs_canvas = FigureCanvasTkAgg(self.dfs_figure, master=self.master)
-        self.dfs_canvas.get_tk_widget().grid(row=5, column=2, padx=5, pady=5)
-
-    def add_graph(self):
-        # Limpiar listas de vértices y aristas
-        self.vertices.clear()
-        self.edges.clear()
-        # Limpiar el grafo original
-        self.original_graph.clear()
+        self.etiqueta_grafo = tk.Label(self.ventana, text="Grafo Original", bg="#F5F5DC")
+        self.etiqueta_grafo.grid(row=0, column=2, padx=10, pady=5, sticky="nsew")
+        self.figura_grafo = plt.Figure(figsize=(5, 4), dpi=100)
+        self.canvas_base = FigureCanvasTkAgg(self.figura_grafo, master=self.ventana)
+        self.canvas_base.get_tk_widget().grid(row=1, column=2, rowspan=4, padx=10, pady=5, sticky="nsew")
         
-        vertices = self.vertex_entry.get().split(",")
-        edges = self.edge_entry.get().split(",")
-        for edge in edges:
-            v1, v2 = edge.split("--")
-            self.original_graph.add_edge(v1.strip(), v2.strip())
-            self.edges.append(edge.strip())
-        for vertex in vertices:
-            self.original_graph.add_node(vertex.strip())
-            self.vertices.append(vertex.strip())
-        self.pos = nx.spring_layout(self.original_graph)  # Calcular la disposición de los nodos una sola vez
-        self.update_table()
-        self.update_graph()
-        self.update_bfs_graph()
-        self.update_dfs_graph()
+        # Área para mostrar el grafo de búsqueda en anchura (BFS)
+        self.etiqueta_bfs = tk.Label(self.ventana, text="Búsqueda a lo ancho", bg="#F5F5DC")
+        self.etiqueta_bfs.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        self.figura_bfs = plt.Figure(figsize=(5, 4), dpi=100)
+        self.canvas_bfs = FigureCanvasTkAgg(self.figura_bfs, master=self.ventana)
+        self.canvas_bfs.get_tk_widget().grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        
+        # Área para mostrar el grafo de búsqueda en profundidad (DFS)
+        self.etiqueta_dfs = tk.Label(self.ventana, text="Búsqueda a lo largo", bg="#F5F5DC")
+        self.etiqueta_dfs.grid(row=5, column=2, padx=10, pady=5, sticky="nsew")
+        self.figura_dfs = plt.Figure(figsize=(5, 4), dpi=100)
+        self.canvas_dfs = FigureCanvasTkAgg(self.figura_dfs, master=self.ventana)
+        self.canvas_dfs.get_tk_widget().grid(row=6, column=2, padx=10, pady=5, sticky="nsew")
 
-    def update_bfs_graph(self):
-        self.bfs_figure.clear()
-        ax = self.bfs_figure.add_subplot(111)
-        nx.draw(self.original_graph, self.pos, with_labels=True, ax=ax, node_color='lightblue', edge_color='gray')
-        bfs_edges = list(nx.bfs_edges(self.original_graph, source=self.vertices[0]))
-        nx.draw_networkx_edges(self.original_graph, self.pos, edgelist=bfs_edges, ax=ax, edge_color='blue', width=2)
-        self.bfs_canvas.draw()
+    def agregar_grafo(self):
+        # Limpiar listas de vértices y aristas
+        self.vertices_lista.clear()
+        self.aristas_lista.clear()
+        # Limpiar el grafo original
+        self.grafo_base.clear()
+        
+        # Ordenar los vértices antes de agregarlos
+        vertices = sorted(self.entrada_vertices.get().split(","))
+        aristas = sorted(self.entrada_aristas.get().split(","))
+        for arista in aristas:
+            v1, v2 = arista.split("--")
+            self.grafo_base.add_edge(v1.strip(), v2.strip())
+            self.aristas_lista.append(arista.strip())
+        for vertice in vertices:
+            self.grafo_base.add_node(vertice.strip())
+            self.vertices_lista.append(vertice.strip())
+        self.posicion_nodos = nx.spring_layout(self.grafo_base)  # Calcular la disposición de los nodos una sola vez
+        self.actualizar_tabla()
+        self.actualizar_grafo()
+        self.actualizar_grafo_bfs()
+        self.actualizar_grafo_dfs()
 
-    def update_dfs_graph(self):
-        self.dfs_figure.clear()
-        ax = self.dfs_figure.add_subplot(111)
-        nx.draw(self.original_graph, self.pos, with_labels=True, ax=ax, node_color='lightblue', edge_color='gray')
-        dfs_edges = list(nx.dfs_edges(self.original_graph, source=self.vertices[0]))
-        nx.draw_networkx_edges(self.original_graph, self.pos, edgelist=dfs_edges, ax=ax, edge_color='red', width=2)
-        self.dfs_canvas.draw()
+    def actualizar_grafo_bfs(self):
+        self.figura_bfs.clear()
+        ax = self.figura_bfs.add_subplot(111)
+        nx.draw(self.grafo_base, self.posicion_nodos, with_labels=True, ax=ax, node_color='lightblue', edge_color='gray')
+        bfs_aristas = list(nx.bfs_edges(self.grafo_base, source=self.vertices_lista[0]))
+        nx.draw_networkx_edges(self.grafo_base, self.posicion_nodos, edgelist=bfs_aristas, ax=ax, edge_color='blue', width=2)
+        self.canvas_bfs.draw()
 
-    def update_graph(self):
-        self.graph = self.original_graph.copy()
-        self.figure.clear()
-        ax = self.figure.add_subplot(111)
-        nx.draw(self.graph, self.pos, with_labels=True, ax=ax)
-        self.canvas.draw()
+    def actualizar_grafo_dfs(self):
+        self.figura_dfs.clear()
+        ax = self.figura_dfs.add_subplot(111)
+        nx.draw(self.grafo_base, self.posicion_nodos, with_labels=True, ax=ax, node_color='lightblue', edge_color='gray')
+        dfs_aristas = list(nx.dfs_edges(self.grafo_base, source=self.vertices_lista[0]))
+        nx.draw_networkx_edges(self.grafo_base, self.posicion_nodos, edgelist=dfs_aristas, ax=ax, edge_color='red', width=2)
+        self.canvas_dfs.draw()
 
-    def update_table(self):
+    def actualizar_grafo(self):
+        self.grafo_copia = self.grafo_base.copy()
+        self.figura_grafo.clear()
+        ax = self.figura_grafo.add_subplot(111)
+        nx.draw(self.grafo_copia, self.posicion_nodos, with_labels=True, ax=ax)
+        self.canvas_base.draw()
+
+    def actualizar_tabla(self):
         # Limpiar tabla
-        for item in self.treeview.get_children():
-            self.treeview.delete(item)
+        for item in self.tabla.get_children():
+            self.tabla.delete(item)
         # Insertar vértices y aristas en la tabla
-        for vertex in self.vertices:
-            self.treeview.insert("", "end", values=(vertex, ""))
-        for edge in self.edges:
-            self.treeview.insert("", "end", values=("", edge))
+        for vertice in self.vertices_lista:
+            self.tabla.insert("", "end", values=(vertice, ""))
+        for arista in self.aristas_lista:
+            self.tabla.insert("", "end", values=("", arista))
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = GraphVisualization(master=root)
+    raiz = tk.Tk()
+    app = GrafoVisualizador(ventana=raiz)
     app.mainloop()
