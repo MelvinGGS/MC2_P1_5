@@ -11,6 +11,7 @@ pip install networkx matplotlib
 ```
 - Ingrese los vértices separados por comas (ejemplo: "A,B,C,D")
 - Ingrese las aristas con formato v1--v2 (ejemplo: "A--B, B--C, C--D") como el formato que se muestra en la imagen:
+  
   ![verticesAristas](https://github.com/user-attachments/assets/2e0a1b7c-3e44-4295-aab2-beda2b8c3574)
 - Presione "Agregar Grafo" para  para generar y visualizar el grafo en la ventana. Los vértices y aristas ingresados también aparecerán en la tabla bajo el título "Vértices y Aristas".
 - Los tres grafos se actualizarán mostrando:
