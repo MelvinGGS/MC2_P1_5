@@ -46,50 +46,50 @@ class GrafoVisualizador(tk.Frame):
     def crear_componentes(self):
         # Etiqueta para entrada de vértices
         self.etiqueta_vertices = tk.Label(self.ventana, text="Vértices:", bg="#F5F5DC")
-        self.etiqueta_vertices.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
+        self.etiqueta_vertices.grid(row=0, column=0, padx=8, pady=4, sticky="nsew")
         # Entrada de vértices
         self.entrada_vertices = tk.Entry(self.ventana)
-        self.entrada_vertices.grid(row=0, column=1, padx=10, pady=5, sticky="nsew")
+        self.entrada_vertices.grid(row=0, column=1, padx=8, pady=4, sticky="nsew")
         
         # Etiqueta para entrada de aristas
         self.etiqueta_aristas = tk.Label(self.ventana, text="Aristas:", bg="#F5F5DC")
-        self.etiqueta_aristas.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
+        self.etiqueta_aristas.grid(row=1, column=0, padx=8, pady=4, sticky="nsew")
         # Entrada de aristas
         self.entrada_aristas = tk.Entry(self.ventana)
-        self.entrada_aristas.grid(row=1, column=1, padx=10, pady=5, sticky="nsew")
+        self.entrada_aristas.grid(row=1, column=1, padx=8, pady=4, sticky="nsew")
         
         # Botón para agregar aristas
         self.boton_agregar = tk.Button(self.ventana, text="Agregar Grafo", command=self.agregar_grafo)
-        self.boton_agregar.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        self.boton_agregar.grid(row=2, column=0, columnspan=2, padx=8, pady=8, sticky="nsew")
         
         # Tabla para mostrar vértices y aristas
         self.etiqueta_tabla = tk.Label(self.ventana, text="Vértices y Aristas:", bg="#F5F5DC")
-        self.etiqueta_tabla.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        self.etiqueta_tabla.grid(row=3, column=0, columnspan=2, padx=8, pady=4, sticky="nsew")
         self.tabla = ttk.Treeview(self.ventana, columns=("Vértices", "Aristas"), show="headings")
-        self.tabla.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        self.tabla.grid(row=4, column=0, columnspan=2, padx=8, pady=4, sticky="nsew")
         self.tabla.heading("Vértices", text="Vértices")
         self.tabla.heading("Aristas", text="Aristas")
         
         # Área para mostrar el grafo original
         self.etiqueta_grafo = tk.Label(self.ventana, text="Grafo Original", bg="#F5F5DC")
-        self.etiqueta_grafo.grid(row=0, column=2, padx=10, pady=5, sticky="nsew")
-        self.figura_grafo = plt.Figure(figsize=(5, 4), dpi=100)
+        self.etiqueta_grafo.grid(row=0, column=2, padx=8, pady=4, sticky="nsew")
+        self.figura_grafo = plt.Figure(figsize=(4, 3.2), dpi=100)
         self.canvas_base = FigureCanvasTkAgg(self.figura_grafo, master=self.ventana)
-        self.canvas_base.get_tk_widget().grid(row=1, column=2, rowspan=4, padx=10, pady=5, sticky="nsew")
+        self.canvas_base.get_tk_widget().grid(row=1, column=2, rowspan=4, padx=8, pady=4, sticky="nsew")
         
         # Área para mostrar el grafo de búsqueda en anchura (BFS)
         self.etiqueta_bfs = tk.Label(self.ventana, text="Búsqueda a lo ancho", bg="#F5F5DC")
-        self.etiqueta_bfs.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
-        self.figura_bfs = plt.Figure(figsize=(5, 4), dpi=100)
+        self.etiqueta_bfs.grid(row=5, column=0, columnspan=2, padx=8, pady=4, sticky="nsew")
+        self.figura_bfs = plt.Figure(figsize=(4, 3.2), dpi=100)
         self.canvas_bfs = FigureCanvasTkAgg(self.figura_bfs, master=self.ventana)
-        self.canvas_bfs.get_tk_widget().grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+        self.canvas_bfs.get_tk_widget().grid(row=6, column=0, columnspan=2, padx=8, pady=4, sticky="nsew")
         
         # Área para mostrar el grafo de búsqueda en profundidad (DFS)
         self.etiqueta_dfs = tk.Label(self.ventana, text="Búsqueda a lo largo", bg="#F5F5DC")
-        self.etiqueta_dfs.grid(row=5, column=2, padx=10, pady=5, sticky="nsew")
-        self.figura_dfs = plt.Figure(figsize=(5, 4), dpi=100)
+        self.etiqueta_dfs.grid(row=5, column=2, padx=8, pady=4, sticky="nsew")
+        self.figura_dfs = plt.Figure(figsize=(4, 3.2), dpi=100)
         self.canvas_dfs = FigureCanvasTkAgg(self.figura_dfs, master=self.ventana)
-        self.canvas_dfs.get_tk_widget().grid(row=6, column=2, padx=10, pady=5, sticky="nsew")
+        self.canvas_dfs.get_tk_widget().grid(row=6, column=2, padx=8, pady=4, sticky="nsew")
 
     def agregar_grafo(self):
         # Limpiar listas de vértices y aristas
