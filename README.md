@@ -1,3 +1,5 @@
+# Link del video explicativo: https://drive.google.com/file/d/1gPH_ijuetNOOkcfYTgpQjvzDRlr_1fTp/view
+
 # Buscar grafo a lo ancho y largo
 ## Descripción General
 Este programa es una aplicación gráfica que permite visualizar un grafo y realizar búsquedas a lo ancho y a lo largo utilizando la librería networkx. Los usuarios pueden ingresar vértices y aristas para construir un grafo, y la interfaz gráfica mostrará el grafo original junto con el resultado del mismo grafo destacando la busqueda a lo largo y a lo ancho.
